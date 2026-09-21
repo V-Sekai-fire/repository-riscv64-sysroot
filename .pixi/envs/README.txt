@@ -1,0 +1,2 @@
+Environments are stored in a custom detached-environments directory: C:\Users\ernest.lee\AppData\Local\rattler\cache\envs\riscv64-sysroot-8912983312998699297\envs.
+Symlinks are not supported on this platform so they will not be reachable from the default ('.pixi/envs') directory.
