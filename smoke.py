@@ -13,6 +13,10 @@ import tempfile
 ROOT = pathlib.Path(__file__).resolve().parent
 SYSROOT = ROOT / "sysroot"
 GCC_LIB = SYSROOT / "lib" / "gcc-cross" / "14"
+# clang locates libstdc++ by detecting a GCC installation, which a bare sysroot
+# does not have. Without these, C compiles and every C++ file fails on <cstddef>.
+CXX_INC = ["-isystem", str(SYSROOT / "include" / "c++" / "14"),
+           "-isystem", str(SYSROOT / "include" / "c++" / "14" / "riscv64-linux-gnu")]
 
 # Touches malloc, libm and stdio, so a link that resolves them has really found
 # glibc rather than just the headers.
@@ -30,11 +34,26 @@ int main(void) {
 """
 
 
-def build(out_dir, link):
-    src = out_dir / "smoke.c"
-    src.write_text(SOURCE, encoding="utf-8")
-    out = out_dir / ("smoke.elf" if link else "smoke.o")
-    cmd = ["clang", "--target=riscv64-unknown-linux-gnu", "--sysroot=" + str(SYSROOT)]
+CXX_SOURCE = """
+#include <map>
+#include <string>
+#include <cstddef>
+int main() {
+    std::map<int, std::string> m;
+    m[1] = "x";
+    return static_cast<int>(m.size()) - 1;
+}
+"""
+
+
+def build(out_dir, link, cxx=False):
+    src = out_dir / ("smoke.cc" if cxx else "smoke.c")
+    src.write_text(CXX_SOURCE if cxx else SOURCE, encoding="utf-8")
+    out = out_dir / (("smoke_cc" if cxx else "smoke") + (".elf" if link else ".o"))
+    cmd = [("clang++" if cxx else "clang"), "--target=riscv64-unknown-linux-gnu",
+           "--sysroot=" + str(SYSROOT)]
+    if cxx:
+        cmd += CXX_INC
     if link:
         cmd += ["-fuse-ld=lld", "-B" + str(GCC_LIB), "-L" + str(GCC_LIB),
                 str(src), "-o", str(out), "-lm"]
@@ -77,7 +96,15 @@ def main():
             return 1
         print("PASS  links a riscv64 executable (" + str(len(data)) + " bytes, e_machine 243)")
 
-    print("2/2 checks")
+        # C++ is a separate question: the libstdc++ headers sit where clang does
+        # not look by default, so a sysroot can pass every C check and fail here.
+        proc, obj = build(tmp, link=False, cxx=True)
+        if proc.returncode != 0 or not obj.exists():
+            print("FAIL  compile C++ to riscv64: " + first_error(proc))
+            return 1
+        print("PASS  compiles C++ (map, string) to a riscv64 object")
+
+    print("3/3 checks")
     return 0
 
 

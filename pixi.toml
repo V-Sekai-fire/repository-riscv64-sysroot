@@ -7,6 +7,7 @@ platforms = ["win-64", "linux-64", "osx-arm64"]
 # lld does the linking: GNU ld would need a riscv64 build, lld does not.
 [dependencies]
 clang = ">=20"
+clangxx = ">=20"
 lld = ">=20"
 python = ">=3.11"
 
