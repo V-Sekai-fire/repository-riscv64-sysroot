@@ -13,6 +13,7 @@ authors:
 url: https://deb.debian.org/debian/
 repository: https://packages.debian.org/stable/
 license:
+  - MIT
   - LGPL-2.1-or-later
   - GPL-3.0-with-GCC-exception
   - GPL-2.0-only

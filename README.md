@@ -17,4 +17,4 @@ pixi run smoke
 
 ## Licence
 
-The sysroot is redistributed binaries. glibc is LGPL-2.1-or-later, libgcc and libstdc++ are GPL-3.0 with the GCC Runtime Library Exception, and the kernel UAPI headers are GPL-2.0 with the Linux syscall note. Their corresponding sources are the source packages named in `pins.txt`, available from https://deb.debian.org/debian/ and its archive. The repository's own scripts state no licence.
+The sysroot is redistributed binaries. glibc is LGPL-2.1-or-later, libgcc and libstdc++ are GPL-3.0 with the GCC Runtime Library Exception, and the kernel UAPI headers are GPL-2.0 with the Linux syscall note. Their corresponding sources are the source packages named in `pins.txt`, available from https://deb.debian.org/debian/ and its archive. Everything outside `sysroot/` (`assemble.py`, `smoke.py`, `toolchain.cmake`, `pixi.toml` and the other repository files) is MIT. See [LICENSE](LICENSE). The MIT licence does not cover the files in `sysroot/`.
